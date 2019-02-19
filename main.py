@@ -1,18 +1,18 @@
 import hashlib
 import json
-import getpass
+import re
 
 
 def read_policy():
     with open("pwconfig.ini", "r") as policy_file:
         policy = json.load(policy_file)
-    # print(json.dumps(policy, indent=4))
+    print(json.dumps(policy, indent=4))
     print(policy['password_Policy']['minlen'])
     return policy
 
 
 def read_salt():
-    # return salting
+    # return salting strig
     pass
 
 
@@ -20,6 +20,7 @@ def shaCrypt(toCrypt):
     hash_object = hashlib.sha256(toCrypt.encode())
     hex_dig = hash_object.hexdigest()
     print(hex_dig)
+    return hex_dig
 
 
 def password_login(password):
@@ -29,18 +30,20 @@ def password_login(password):
 
 
 def password_set(rules):
-    password = input('Password')
-    if len(password) < rules['password_Policy']['minlen']:
-        print('Kennwort kurz')
-        return False
-    elif len(password) > rules['password_Policy']['maxlen']:
-        print('ZU Lang')
-        return False
-    else:
-        print('PW Korrekt')
-        return True
-
-
+    while True:
+        password = input('Password')
+        if len(password) < rules['password_Policy']['minlen']:
+            print('Kennwort kurz')
+        elif len(password) > rules['password_Policy']['maxlen']:
+            print('ZU Lang')
+        elif re.search('[A-Z]', password) is None:
+            print('Gross Kleinschreibung fehlt')
+        elif re.search('[a-z]', password) is None:
+            print('Kleinschreibung fehlt')
+        elif re.search('[1-9]', password) is None:
+            print('keine Zahl')
+        else:
+            return True
 def login():
     user = input('UserName :')
     password = input('Passsword :')
@@ -50,8 +53,6 @@ def login():
 
 # appUser =  login()
 # print("Welcome %1 ".format(),appUser)
-p = getpass.getpass('Input')
-print(p)
 rules = read_policy()
 while not password_set(rules):
     print("valid")
